@@ -19,6 +19,48 @@ html, body{
   overflow-x:hidden;
 }
 
+/* LOGIN SCREEN */
+.login-screen{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  text-align:center;
+}
+
+.login-box{
+  background:#ffffff;
+  color:#111;
+  padding:40px;
+  border-radius:15px;
+  width:90%;
+  max-width:400px;
+}
+
+.login-box input{
+  width:100%;
+  padding:10px;
+  margin:10px 0;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+
+.login-box button{
+  width:100%;
+  padding:10px;
+  margin:5px 0;
+  border:none;
+  border-radius:8px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.dev-btn{background:#2ed573;color:#fff;}
+.guest-btn{background:#00c6ff;color:#fff;}
+
+/* ================= LIBRARY SECTION ================= */
+.library-section{ display:none; }
+
 /* LIGHT MODE */
 body.light-mode{
   background:#f9fafb;
@@ -33,11 +75,6 @@ body.light-mode .book{
   background:#ffffff;
   color:#111827;
   box-shadow:0 4px 12px rgba(0,0,0,0.08);
-}
-body.light-mode input, body.light-mode select{
-  background:#ffffff;
-  color:#111827;
-  border:1px solid #d1d5db;
 }
 
 /* HEADER */
@@ -192,8 +229,8 @@ nav button{
 /* STICKY NOTES FLOATING */
 .sticky-notes-float{
   position:fixed;
-  top:50px;
-  right:-300px;
+  top:10px;
+  right:-250px;
   width:280px;
   max-height:80%;
   background:#fff8a5;
@@ -280,13 +317,35 @@ nav button{
 </head>
 <body>
 
+<!--= LOGIN =-->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <h1>☁️ LearnCloud</h1>
+    <p>Input your password</p>
+
+    <hr>
+
+    <input type="password" id="devPassword" placeholder="Password">
+    <button class="dev-btn" onclick="loginDeveloper()">🛠 Login </button>
+  </div>
+</div>
+
+<!-- ================= LIBRARY ================= -->
+<div class="library-section" id="librarySection">
+
 <header>
-  <h1>☁️ LearnCloud </h1>
+  <h1>☁️ LearnCloud</h1>
 </header>
 
 <nav>
-  <button onclick="toggleTheme()">🌓 Toggle Mode</button>
-  <button onclick="toggleNotes()">💡 Notes</button>
+  <div>
+    <span id="roleDisplay"></span>
+  </div>
+  <div>
+    <button onclick="toggleTheme()">🌓 Mode</button>
+    <button onclick="logout()">🚪 Logout</button>
+    <button onclick="toggleNotes()">💡 Notes</button>
+  </div>
 </nav>
 
 <div class="container">
@@ -381,10 +440,47 @@ nav button{
 </footer>
 
 <script>
+
+/* ================= LOGIN SYSTEM ================= */
+const loginScreen = document.getElementById("loginScreen");
+const librarySection = document.getElementById("librarySection");
+const roleDisplay = document.getElementById("roleDisplay");
+
+function showLibrary(){
+  loginScreen.style.display="none";
+  librarySection.style.display="block";
+  roleDisplay.textContent="Logged in as: "+localStorage.getItem("learncloudRole");
+}
+
+function showLogin(){
+  loginScreen.style.display="flex";
+  librarySection.style.display="none";
+}
+
+function loginDeveloper(){
+  const pass=document.getElementById("devPassword").value;
+  if(pass==="tutaniyuri123"){
+    localStorage.setItem("learncloudRole","User");
+    showLibrary();
+  }else{
+    alert("Incorrect Password");
+  }
+}
+
+function logout(){
+  localStorage.removeItem("learncloudRole");
+  showLogin();
+}
+
+if(localStorage.getItem("learncloudRole")){ showLibrary(); }
+else{ showLogin(); }
+
+
+/* ================= THEME ================= */
 // Subject mapping
 const semesterSubjects = {
-  "1st": ["CPAR", "PHILOSOPHY"],
-  "2nd": ["MEDIA INFUCSP LITERACY", "ENTREP"]
+  "1st": ["CPAR", "PHILOSOPHY", "UCSP"],
+  "2nd": ["ENTREP"]
 };
 
 const semesterFilter = document.getElementById('semesterFilter');
@@ -510,41 +606,8 @@ addNoteBtn.addEventListener('click', ()=>{
 });
 function toggleNotes(){ stickyNotesFloat.classList.toggle('open'); }
 
+
 </script>
+
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
