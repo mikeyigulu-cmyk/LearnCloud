@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>LearnCloud E-Library (Option B)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+/* GLOBAL */
+*{box-sizing:border-box;}
+html, body{
+  width:100%;
+  margin:0;
+  padding:0;
+  font-family:'Segoe UI',sans-serif;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  color:#fff;
+  transition:0.3s;
+  overflow-x:hidden;
+}
+
+/* LIGHT MODE */
+body.light-mode{
+  background:#f9fafb;
+  color:#111827;
+}
+body.light-mode header, body.light-mode nav{
+  background:#ffffff;
+  color:#111827;
+  box-shadow:0 2px 8px rgba(0,0,0,0.08);
+}
+body.light-mode .book{
+  background:#ffffff;
+  color:#111827;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+body.light-mode input, body.light-mode select{
+  background:#ffffff;
+  color:#111827;
+  border:1px solid #d1d5db;
+}
+
+/* HEADER */
+header{
+  text-align:center;
+  padding:40px 20px;
+  font-weight:900;
+}
+header h1{
+  margin:0;
+  font-size:clamp(1.6rem,5vw,2.5rem);
+}
+
+/* NAVIGATION */
+nav{
+  display:flex;
+  justify-content:flex-end;
+  padding:10px 20px;
+}
+nav button{
+  background:none;
+  border:none;
+  font-size:16px;
+  cursor:pointer;
+  color:inherit;
+  margin-left: 10px;
+}
+
+/* MAIN CONTAINER */
+.container{
+  padding:20px;
+  max-width:1200px;
+  margin:0 auto;
+}
+
+/* SEARCH BAR */
+.search-bar{
+  max-width:500px;
+  margin:0 auto 20px auto;
+}
+.search-bar input{
+  width:100%;
+  padding:12px;
+  border-radius:8px;
+  border:none;
+  font-size:15px;
+  background:rgba(255,255,255,0.1);
+  color:inherit;
+}
+
+/* FILTERS */
+.filters{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  justify-content:center;
+  margin-bottom:20px;
+}
+.filters select{
+  padding:10px;
+  border-radius:8px;
+  border:none;
+  font-weight:bold;
+}
+
+/* BOOK LIST */
+.book-list{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(250px, 1fr));
+  gap:20px;
+}
+
+/* BOOK CARD */
+.book{
+  padding:20px;
+  border-radius:15px;
+  background:rgba(255,255,255,0.05);
+  cursor:pointer;
+  transition:0.3s;
+}
+.book:hover{transform:translateY(-5px);}
+.book h3{margin:0 0 5px;}
+.tag{
+  display:inline-block;
+  background:#00c6ff40;
+  padding:4px 8px;
+  border-radius:5px;
+  font-size:12px;
+  margin-right:5px;
+}
+
+/* PDF PREVIEW overlay */
+.preview-overlay{
+  display:none;
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(0,0,0,0.9);
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+.preview-overlay iframe{
+  width:90%;
+  height:85%;
+  border:none;
+  border-radius:10px;
+  background: white;
+}
+.preview-overlay .close-btn {
+  position:absolute;
+  top:20px;
+  right:20px;
+  padding:10px 20px;
+  border:none;
+  border-radius:5px;
+  background:#ff4757;
+  color:white;
+  font-weight: bold;
+  cursor:pointer;
+}
+
+/* PDF SELECTION overlay */
+.pdf-select-overlay{
+  display:none;
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(0,0,0,0.9);
+  justify-content:center;
+  align-items:center;
+  z-index:10000;
+}
+.pdf-select-overlay div{
+  background:#fff;
+  padding:20px;
+  border-radius:10px;
+  min-width:300px;
+}
+.pdf-select-overlay h3{
+  margin-top:0;
+  color:#111;
+}
+.pdf-select-overlay button.pdf-option{
+  display:block;
+  width:100%;
+  margin:5px 0;
+  padding:10px;
+  cursor:pointer;
+}
+
+/* STICKY NOTES FLOATING */
+.sticky-notes-float{
+  position:fixed;
+  top:50px;
+  right:-300px;
+  width:280px;
+  max-height:80%;
+  background:#fff8a5;
+  color:#111;
+  border-radius:15px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.3);
+  padding:15px;
+  overflow-y:auto;
+  transition: right 0.5s ease;
+  z-index:10000;
+}
+.sticky-notes-float.open{
+  right:20px;
+}
+.sticky-notes-float .add-note-btn{
+  width:100%;
+  padding:8px;
+  margin-bottom:10px;
+  border:none;
+  border-radius:8px;
+  background:#00c6ff;
+  color:#fff;
+  font-weight:bold;
+  cursor:pointer;
+}
+.notes-area{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+/* NOTE */
+.note{
+  width:100%;
+  min-height:80px;
+  background:#fff7a0;
+  padding:10px;
+  border-radius:10px;
+  position:relative;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+}
+.note textarea{
+  width:100%;
+  height:100%;
+  border:none;
+  background:transparent;
+  resize:none;
+  outline: none;
+}
+.delete-note{
+  position:absolute;
+  top:-5px;
+  right:-5px;
+  background:#ff4757;
+  color:#fff;
+  border:none;
+  border-radius:50%;
+  width:22px;
+  height:22px;
+  cursor: pointer;
+}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+  .book-list{grid-template-columns:1fr;}
+  .sticky-notes-float{width:90%; right:-350px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>☁️ LearnCloud </h1>
+</header>
+
+<nav>
+  <button onclick="toggleTheme()">🌓 Toggle Mode</button>
+  <button onclick="toggleNotes()">💡 Notes</button>
+</nav>
+
+<div class="container">
+
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search books by title or subject...">
+  </div>
+
+  <div class="filters">
+    <select id="semesterFilter" onchange="updateSubjects(); applyFilters();">
+      <option value="all">All Semesters</option>
+      <option value="1st">1st Semester</option>
+      <option value="2nd">2nd Semester</option>
+    </select>
+    <select id="subjectFilter" onchange="applyFilters()">
+      <option value="all">All Subjects</option>
+    </select>
+  </div>
+
+  <div class="book-list">
+
+    <!-- CPAR with multiple PDFs -->
+    <div class="book" data-sem="1st" data-subject="CPAR"
+     data-pdfs='[
+       {"name":"Module 1 - Traditional Art Centers","url":"file:///C:/Users/aom/Downloads/Copy%20of%202_Q1-Contemporary.pptx.pdf"},
+       {"name":"Module 2 - Philippine Contemporary Artist","url":"file:///C:/Users/aom/Downloads/3_Q1-Contemporary.pptx.pdf"}
+     ]'>
+  <h3>Contemporary Philippine Arts (CPAR)</h3>
+  <span class="tag">1st Semester</span>
+  <span class="tag">CPAR</span>
+</div>
+
+    <!-- Philosophy multiple PDF -->
+    <div class="book" data-sem="1st" data-subject="PHILOSOPHY"
+     data-pdfs='[
+       {"name":"Module 1 - Methods of Philosophizing","url":"file:///C:/Users/aom/Downloads/week%205%20day%201%20DEDUCTIVE%20&INDUCTIVE%20REASONING.pptx.pdf"},
+       {"name":"Module 2 - Doing Philosophy","url":"file:///C:/Users/aom/Downloads/W1-DOING%20PHILOSOPHY.pptx.pdf"}
+     ]'>
+  <h3>Introduction to Philosophy</h3>
+  <span class="tag">1st Semester</span>
+  <span class="tag">Philosophy</span>
+</div>
+
+  <!-- UCSP -->
+<div class="book" data-sem="1st" data-subject="UCSP"
+     data-pdfs='[
+       {"name":"Module 1 - Introduction to UCSP","url":"file:///C:/Users/aom/Downloads/UCSP%20MOD%201%20PPT.pptx.pdf"},
+       {"name":"Module 2 - Culture and Society","url":"file:///C:/Users/aom/Downloads/UCSP%20MOD%202%20PPT.pptx.pdf"}
+     ]'>
+  <h3>Understanding Culture, Society, and Politics (UCSP)</h3>
+  <span class="tag">1st Semester</span>
+  <span class="tag">UCSP</span>
+</div>
+
+     <!-- Entrepreneur multiple PDF -->
+    <div class="book" data-sem="1st" data-subject=" Entrepreneurship"
+     data-pdfs='[
+       {"name":"Module 1 - Getting to Know the Market","url":"file:///C:/Users/aom/Downloads/Market-and-Key-Concept-of-Market.ppt.pdf"},
+       {"name":"Module 2 - Plan Preperation","url":"file:///C:/Users/aom/Downloads/2.Business-Plan-HO.pptx.pdf"}
+     ]'>
+  <h3>Entreprenuership</h3>
+  <span class="tag">2nd Semester</span>
+  <span class="tag">Entreprenuer</span>
+</div>
+
+
+  </div>
+
+</div>
+
+<!-- PDF Preview Overlay -->
+<div class="preview-overlay" id="previewOverlay">
+  <button class="close-btn" onclick="closePreview()">✕ Close</button>
+  <iframe id="pdfPreview"></iframe>
+</div>
+
+<!-- PDF Selection Overlay -->
+<div class="pdf-select-overlay" id="pdfSelectOverlay">
+  <div>
+    <h3> Select A Module</h3>
+    <div id="pdfOptions"></div>
+    <button onclick="closePdfSelect()">Cancel</button>
+  </div>
+</div>
+
+<!-- Sticky Notes -->
+<div class="sticky-notes-float" id="stickyNotesFloat">
+  <h2 style="margin-top:0;">💡 Sticky Notes</h2>
+  <button class="add-note-btn">+ Add Note</button>
+  <div class="notes-area" id="notesArea"></div>
+</div>
+
+<footer style="text-align:center;padding:20px;margin-top:40px; opacity: 0.6;">
+  © 2026 LearnCloud
+</footer>
+
+<script>
+// Subject mapping
+const semesterSubjects = {
+  "1st": ["CPAR", "PHILOSOPHY"],
+  "2nd": ["MEDIA INFUCSP LITERACY", "ENTREP"]
+};
+
+const semesterFilter = document.getElementById('semesterFilter');
+const subjectFilter = document.getElementById('subjectFilter');
+const searchInput = document.getElementById('searchInput');
+const books = document.querySelectorAll('.book');
+const previewOverlay = document.getElementById('previewOverlay');
+const pdfPreview = document.getElementById('pdfPreview');
+const pdfSelectOverlay = document.getElementById('pdfSelectOverlay');
+const pdfOptionsDiv = document.getElementById('pdfOptions');
+
+// THEME
+function toggleTheme() {
+  document.body.classList.toggle('light-mode');
+}
+
+// UPDATE SUBJECT DROPDOWN
+function updateSubjects() {
+  const sem = semesterFilter.value;
+  subjectFilter.innerHTML = '<option value="all">All Subjects</option>';
+  if (semesterSubjects[sem]) {
+    semesterSubjects[sem].forEach(sub => {
+      let opt = document.createElement('option');
+      opt.value = sub;
+      opt.textContent = sub;
+      subjectFilter.appendChild(opt);
+    });
+  }
+}
+
+// APPLY FILTERING
+function applyFilters() {
+  const sem = semesterFilter.value;
+  const sub = subjectFilter.value;
+  const keyword = searchInput.value.toLowerCase();
+  books.forEach(book => {
+    const mSem = (sem === "all" || book.dataset.sem === sem);
+    const mSub = (sub === "all" || book.dataset.subject === sub);
+    const mSearch = book.textContent.toLowerCase().includes(keyword);
+    book.style.display = (mSem && mSub && mSearch) ? "block" : "none";
+  });
+}
+searchInput.addEventListener('input', applyFilters);
+
+// PDF OPENING LOGIC
+books.forEach(book => {
+  book.addEventListener('click', () => {
+    const pdfs = book.dataset.pdfs ? JSON.parse(book.dataset.pdfs) : null;
+    if(pdfs && pdfs.length > 1){
+      pdfOptionsDiv.innerHTML = '';
+      pdfs.forEach(pdf => {
+        const btn = document.createElement('button');
+        btn.textContent = pdf.name;
+        btn.classList.add('pdf-option');
+        btn.onclick = () => {
+          openPdf(pdf.url);
+          closePdfSelect();
+        };
+        pdfOptionsDiv.appendChild(btn);
+      });
+      pdfSelectOverlay.style.display = 'flex';
+    } else if(book.dataset.pdf){
+      openPdf(book.dataset.pdf);
+    }
+  });
+});
+
+function openPdf(url){
+  pdfPreview.src = url;
+  previewOverlay.style.display = "flex";
+  document.body.style.overflow = "hidden";
+}
+
+function closePreview(){
+  previewOverlay.style.display = "none";
+  pdfPreview.src = "";
+  document.body.style.overflow = "auto";
+}
+
+function closePdfSelect(){
+  pdfSelectOverlay.style.display = 'none';
+}
+
+// Close overlay if clicking outside iframe
+previewOverlay.addEventListener('click', (e) => {
+  if(e.target === previewOverlay) closePreview();
+});
+
+// STICKY NOTES LOGIC
+const stickyNotesFloat = document.getElementById('stickyNotesFloat');
+const addNoteBtn = stickyNotesFloat.querySelector('.add-note-btn');
+const notesArea = document.getElementById('notesArea');
+let notes = JSON.parse(localStorage.getItem('learncloudNotes')) || [];
+
+function saveNotes(){ localStorage.setItem('learncloudNotes', JSON.stringify(notes)); }
+
+function createNote(noteObj){
+  const noteDiv = document.createElement('div');
+  noteDiv.classList.add('note');
+  noteDiv.innerHTML = `
+    <button class="delete-note">&times;</button>
+    <textarea placeholder="Write a note...">${noteObj.text}</textarea>
+  `;
+  noteDiv.querySelector('.delete-note').addEventListener('click', ()=>{
+    notesArea.removeChild(noteDiv);
+    notes = notes.filter(n=>n.id !== noteObj.id);
+    saveNotes();
+  });
+  noteDiv.querySelector('textarea').addEventListener('input', e=>{
+    const idx = notes.findIndex(n=>n.id===noteObj.id);
+    if(idx!==-1){ notes[idx].text = e.target.value; saveNotes(); }
+  });
+  notesArea.appendChild(noteDiv);
+}
+
+// Load existing notes
+notes.forEach(n=>createNote(n));
+addNoteBtn.addEventListener('click', ()=>{
+  const newNote={id:Date.now(), text:""};
+  notes.push(newNote);
+  createNote(newNote);
+  saveNotes();
+});
+function toggleNotes(){ stickyNotesFloat.classList.toggle('open'); }
+
+</script>
+</body>
+</html>
