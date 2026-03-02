@@ -141,8 +141,8 @@ nav button{
   z-index:9999;
 }
 .preview-overlay iframe{
-  width:85%;
-  height:80%;
+  width:90%;
+  height:85%;
   border:none;
   border-radius:10px;
   background: white;
@@ -257,15 +257,15 @@ nav button{
 }
 
 /* RESPONSIVE */
-@media(max-width:400px){
+@media(max-width:600px){
   .book-list{grid-template-columns:1fr;}
   .sticky-notes-float{width:90%; right:-350px;}
 }
 /* MOBILE PDF FIX */
 @media (max-width: 768px){
   .preview-overlay iframe{
-    width:50%;
-    height:50%;
+    width:90%;
+    height:90%;
     border-radius:0;
   }
 
@@ -513,6 +513,7 @@ function toggleNotes(){ stickyNotesFloat.classList.toggle('open'); }
 </script>
 </body>
 </html>
+
 
 
 
